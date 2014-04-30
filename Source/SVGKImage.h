@@ -98,6 +98,9 @@ typedef void (^SVGKImageAsynchronousLoadingDelegate)(SVGKImage* loadedImage);
  returns nil and immmediately calls the completion block
  */
 +(SVGKParser *) imageAsynchronouslyNamed:(NSString *)name onCompletion:(SVGKImageAsynchronousLoadingDelegate) blockCompleted;
++(SVGKParser *)imageAsynchronouslyWithSource:(SVGKSource*)source
+									withName:(NSString*)name
+								onCompletion:(SVGKImageAsynchronousLoadingDelegate)blockCompleted;
 + (SVGKImage *)imageWithContentsOfFile:(NSString *)path;
 #if TARGET_OS_IPHONE // doesn't exist on OS X's Image class
 + (SVGKImage *)imageWithData:(NSData *)data;

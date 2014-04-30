@@ -7,11 +7,18 @@
  */
 @implementation CAShapeLayerWithHitTest
 
+- (id)init {
+	if ((self = [super init])) {
+		self.userInteractionsEnabled = YES;
+	}
+	return self;
+}
+
 - (BOOL) containsPoint:(CGPoint)p
 {
 	BOOL boundsContains = CGRectContainsPoint(self.bounds, p); // must be BOUNDS because Apple pre-converts the point to local co-ords before running the test
 	
-	if( boundsContains )
+	if( self.userInteractionsEnabled && boundsContains )
 	{
 		BOOL pathContains = CGPathContainsPoint(self.path, NULL, p, false);
 		

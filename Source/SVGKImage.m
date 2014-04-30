@@ -229,6 +229,43 @@ static NSMutableDictionary* globalSVGKImageCache;
     return parser;
 }
 
++ (SVGKParser *)imageAsynchronouslyWithSource:(SVGKSource*)source
+									 withName:(NSString*)name
+								 onCompletion:(SVGKImageAsynchronousLoadingDelegate)blockCompleted
+{
+	SVGKParser* parser = [SVGKParser newParserWithDefaultSVGKParserExtensions:source];
+	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
+				   ^{
+					   SVGKParseResult* parsedSVG = [parser parseSynchronously];
+					   
+					   SVGKImage* finalImage = [[[SVGKImage alloc] initWithParsedSVG:parsedSVG] autorelease];
+					   
+#if ENABLE_GLOBAL_IMAGE_CACHE_FOR_SVGKIMAGE_IMAGE_NAMED
+					   if (nil != name)
+					   {
+						   if ( finalImage != nil )
+						   {
+							   finalImage->cameFromGlobalCache = TRUE;
+							   finalImage.nameUsedToInstantiate = name;
+							   
+							   SVGKImageCacheLine* newCacheLine = [[[SVGKImageCacheLine alloc] init] autorelease];
+							   newCacheLine.mainInstance = finalImage;
+							   
+							   [globalSVGKImageCache setValue:newCacheLine forKey:name];
+						   }
+						   else
+						   {
+							   NSLog(@"[%@] WARNING: not caching the output for new SVG image with name = %@, because it failed to load correctly", [self class], name );
+						   }
+					   }
+#endif
+					   
+					   blockCompleted( finalImage );
+				   });
+	
+    return parser;
+}
+
 + (SVGKImage*) imageWithContentsOfURL:(NSURL *)url {
 	NSParameterAssert(url != nil);
 	@synchronized(self) {

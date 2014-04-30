@@ -19,4 +19,6 @@
     
 }
 
+@property (nonatomic, assign) BOOL userInteractionsEnabled; // default = YES
+
 @end
